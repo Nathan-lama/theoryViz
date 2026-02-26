@@ -1,0 +1,168 @@
+{
+    "id": "marxisme",
+    "title": "Le Marxisme",
+    "description": "Observe les dynamiques de classes sociales",
+    "category": "philosophie",
+    "palette": {
+        "primary": "#F44336",
+        "accent": "#FFC107",
+        "background": "#1a0e0e"
+    },
+    "world": {
+        "objects": {
+            "trees": {
+                "enabled": true,
+                "count": 40
+            },
+            "houses": {
+                "enabled": true,
+                "count": 30
+            },
+            "water": {
+                "enabled": true
+            },
+            "rocks": {
+                "enabled": true,
+                "count": 20
+            },
+            "flowers": {
+                "enabled": false
+            },
+            "particles": {
+                "enabled": true
+            }
+        },
+        "sky": {
+            "sunPosition": [
+                80,
+                15,
+                80
+            ],
+            "turbidity": 12
+        },
+        "terrain": {
+            "color": "#3a2a1a"
+        }
+    },
+    "creatures": {
+        "initialCount": 40,
+        "initialTraits": {
+            "speed": {
+                "min": 0.4,
+                "max": 1.2
+            },
+            "size": {
+                "min": 0.15,
+                "max": 0.5
+            },
+            "vision": {
+                "min": 2,
+                "max": 4
+            }
+        },
+        "behaviors": {
+            "seekFood": {
+                "enabled": true
+            },
+            "flee": {
+                "enabled": true
+            },
+            "reproduce": {
+                "enabled": true
+            },
+            "wander": {
+                "enabled": true
+            }
+        }
+    },
+    "variables": {
+        "foodAbundance": {
+            "label": "Capital disponible",
+            "default": 60,
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "description": "Le capital à redistribuer entre les classes",
+            "icon": "💰"
+        },
+        "predatorCount": {
+            "label": "Bourgeoisie (exploiteurs)",
+            "default": 5,
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "description": "Les exploiteurs prélèvent le surplus de travail",
+            "icon": "🎩"
+        },
+        "climate": {
+            "label": "Conditions de travail",
+            "default": 30,
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "description": "Conditions dures = prolétariat sous pression",
+            "icon": "🏭"
+        },
+        "mutationRate": {
+            "label": "Conscience de classe",
+            "default": 20,
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "description": "Plus la conscience est haute, plus le changement est rapide",
+            "icon": "✊"
+        },
+        "resources": {
+            "label": "Moyens de production",
+            "default": 40,
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "description": "Qui contrôle les moyens de production ?",
+            "icon": "⚒️"
+        }
+    },
+    "infoCards": [
+        {
+            "trigger": {
+                "type": "variable",
+                "key": "predatorCount",
+                "operator": ">",
+                "value": 8
+            },
+            "title": "Concentration du capital",
+            "text": "Les gros mangent les petits — c'est l'accumulation du capital selon Marx."
+        },
+        {
+            "trigger": {
+                "type": "population",
+                "operator": "<",
+                "value": 15
+            },
+            "title": "Crise de surproduction",
+            "text": "Le prolétariat s'effondre — les conditions matérielles ne permettent plus la survie."
+        }
+    ],
+    "scenarios": [
+        {
+            "name": "🏭 Capitalisme sauvage",
+            "description": "Beaucoup de capital mais forte exploitation",
+            "variables": {
+                "foodAbundance": 80,
+                "predatorCount": 15,
+                "climate": 20,
+                "resources": 20
+            }
+        },
+        {
+            "name": "✊ Révolution",
+            "description": "Peu de capital, forte conscience = le peuple se soulève",
+            "variables": {
+                "foodAbundance": 10,
+                "predatorCount": 15,
+                "mutationRate": 90,
+                "climate": 10
+            }
+        }
+    ]
+}

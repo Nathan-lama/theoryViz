@@ -1,0 +1,127 @@
+{
+    "id": "TEMPLATE_ID",
+    "title": "TEMPLATE_TITLE",
+    "description": "Description de la théorie",
+    "category": "science",
+    "palette": {
+        "primary": "#9C27B0",
+        "accent": "#FF9800",
+        "background": "#0e0e1a"
+    },
+    "world": {
+        "objects": {
+            "trees": {
+                "enabled": true,
+                "count": 80
+            },
+            "houses": {
+                "enabled": false
+            },
+            "water": {
+                "enabled": true
+            },
+            "rocks": {
+                "enabled": true,
+                "count": 30
+            },
+            "flowers": {
+                "enabled": true,
+                "count": 50
+            },
+            "particles": {
+                "enabled": true
+            }
+        },
+        "sky": {
+            "sunPosition": [
+                100,
+                20,
+                100
+            ],
+            "turbidity": 8
+        },
+        "terrain": {
+            "color": "#2d5a1e"
+        }
+    },
+    "creatures": {
+        "initialCount": 25,
+        "initialTraits": {
+            "speed": {
+                "min": 0.5,
+                "max": 1.5
+            },
+            "size": {
+                "min": 0.2,
+                "max": 0.4
+            },
+            "vision": {
+                "min": 3,
+                "max": 6
+            }
+        },
+        "behaviors": {
+            "seekFood": {
+                "enabled": true
+            },
+            "flee": {
+                "enabled": true
+            },
+            "reproduce": {
+                "enabled": true
+            },
+            "wander": {
+                "enabled": true
+            }
+        }
+    },
+    "variables": {
+        "foodAbundance": {
+            "label": "Variable 1",
+            "default": 50,
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "description": "",
+            "icon": "🔹"
+        },
+        "predatorCount": {
+            "label": "Variable 2",
+            "default": 0,
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "description": "",
+            "icon": "🔹"
+        },
+        "climate": {
+            "label": "Variable 3",
+            "default": 50,
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "description": "",
+            "icon": "🔹"
+        },
+        "mutationRate": {
+            "label": "Variable 4",
+            "default": 10,
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "description": "",
+            "icon": "🔹"
+        },
+        "resources": {
+            "label": "Variable 5",
+            "default": 50,
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "description": "",
+            "icon": "🔹"
+        }
+    },
+    "infoCards": [],
+    "scenarios": []
+}

@@ -1,0 +1,184 @@
+{
+  "id": "evolution",
+  "title": "Théorie de l'Évolution",
+  "description": "Observe la sélection naturelle en action",
+  "category": "science",
+  "palette": {
+    "primary": "#4CAF50",
+    "accent": "#FF9800",
+    "background": "#0e1a0e"
+  },
+  "world": {
+    "objects": {
+      "trees": {
+        "enabled": true,
+        "count": 100
+      },
+      "houses": {
+        "enabled": false
+      },
+      "water": {
+        "enabled": true
+      },
+      "rocks": {
+        "enabled": true,
+        "count": 40
+      },
+      "flowers": {
+        "enabled": true,
+        "count": 60
+      },
+      "particles": {
+        "enabled": true
+      }
+    },
+    "sky": {
+      "sunPosition": [
+        100,
+        20,
+        100
+      ],
+      "turbidity": 8
+    },
+    "terrain": {
+      "color": "#2d5a1e"
+    }
+  },
+  "creatures": {
+    "initialCount": 30,
+    "initialTraits": {
+      "speed": {
+        "min": 0.5,
+        "max": 1.5
+      },
+      "size": {
+        "min": 0.2,
+        "max": 0.4
+      },
+      "vision": {
+        "min": 2,
+        "max": 5
+      }
+    },
+    "behaviors": {
+      "seekFood": {
+        "enabled": true
+      },
+      "flee": {
+        "enabled": true
+      },
+      "reproduce": {
+        "enabled": true
+      },
+      "wander": {
+        "enabled": true
+      }
+    }
+  },
+  "variables": {
+    "foodAbundance": {
+      "label": "Nourriture disponible",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "description": "Réduis pour créer une pression de sélection",
+      "icon": "🍎"
+    },
+    "predatorCount": {
+      "label": "Prédateurs",
+      "default": 3,
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "description": "Ajoute des prédateurs pour favoriser la vitesse",
+      "icon": "🐺"
+    },
+    "climate": {
+      "label": "Climat",
+      "default": 50,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "description": "Les extrêmes éliminent les inadaptés",
+      "icon": "🌡️"
+    },
+    "mutationRate": {
+      "label": "Taux de mutation",
+      "default": 30,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "description": "Plus de mutations = plus de diversité",
+      "icon": "🧬"
+    },
+    "resources": {
+      "label": "Espace vital",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "description": "Limite le territoire disponible",
+      "icon": "🌍"
+    }
+  },
+  "infoCards": [
+    {
+      "trigger": {
+        "type": "generation",
+        "operator": ">=",
+        "value": 5
+      },
+      "title": "Sélection naturelle",
+      "text": "Les créatures les mieux adaptées survivent et transmettent leurs traits."
+    },
+    {
+      "trigger": {
+        "type": "population",
+        "operator": "<",
+        "value": 10
+      },
+      "title": "Goulot d'étranglement",
+      "text": "Population très basse ! La diversité génétique diminue."
+    },
+    {
+      "trigger": {
+        "type": "variable",
+        "key": "foodAbundance",
+        "operator": "<",
+        "value": 20
+      },
+      "title": "Famine",
+      "text": "Peu de nourriture = forte compétition."
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "🏃 Sélection par la vitesse",
+      "description": "Peu de nourriture + prédateurs = seuls les rapides survivent",
+      "variables": {
+        "foodAbundance": 20,
+        "predatorCount": 5,
+        "mutationRate": 40
+      }
+    },
+    {
+      "name": "🎲 Dérive génétique",
+      "description": "Abondance + mutations fortes = diversité maximale",
+      "variables": {
+        "foodAbundance": 80,
+        "predatorCount": 0,
+        "mutationRate": 50
+      }
+    },
+    {
+      "name": "☄️ Extinction de masse",
+      "description": "Conditions extrêmes, qui survivra ?",
+      "variables": {
+        "foodAbundance": 5,
+        "climate": 95,
+        "predatorCount": 10
+      }
+    }
+  ]
+}
