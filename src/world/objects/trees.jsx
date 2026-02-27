@@ -5,12 +5,7 @@ import { registerWorldObject } from '../registry'
 
 const FOLIAGE_COLORS = ['#2E7D32', '#388E3C', '#43A047', '#4CAF50']
 
-function getTerrainHeight(x, z) {
-    return (
-        Math.sin(x * 0.15) * Math.cos(z * 0.15) * 2 +
-        Math.sin(x * 0.3 + z * 0.2) * 0.8
-    )
-}
+import { getTerrainHeight } from '../terrain-utils'
 
 function Trees({ count = 80 }) {
     const trunkRef = useRef()

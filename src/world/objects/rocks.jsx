@@ -2,12 +2,7 @@ import { useMemo } from 'react'
 import { isInWater } from './water'
 import { registerWorldObject } from '../registry'
 
-function getTerrainHeight(x, z) {
-    return (
-        Math.sin(x * 0.15) * Math.cos(z * 0.15) * 2 +
-        Math.sin(x * 0.3 + z * 0.2) * 0.8
-    )
-}
+import { getTerrainHeight } from '../terrain-utils'
 
 const ROCK_COLORS = ['#5A5A5A', '#6B6B6B', '#4A4A4A', '#7A7A7A']
 

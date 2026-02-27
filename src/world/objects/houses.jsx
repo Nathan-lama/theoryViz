@@ -3,12 +3,7 @@ import * as THREE from 'three'
 import { isInWater } from './water'
 import { registerWorldObject } from '../registry'
 
-function getTerrainHeight(x, z) {
-    return (
-        Math.sin(x * 0.15) * Math.cos(z * 0.15) * 2 +
-        Math.sin(x * 0.3 + z * 0.2) * 0.8
-    )
-}
+import { getTerrainHeight } from '../terrain-utils'
 
 const WALL_COLORS = ['#FFCC80', '#FFAB91', '#CE93D8', '#80DEEA']
 
