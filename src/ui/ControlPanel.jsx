@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { useParams } from 'react-router-dom'
 import useStore from '../core/store'
 import { theoryList } from '../theories'
 import { getWorldObjects } from '../world/registry'
@@ -58,6 +59,23 @@ export default function ControlPanel() {
     const worldObjects = useStore((s) => s.worldObjects)
     const setObjectCount = useStore((s) => s.setObjectCount)
     const toggleObject = useStore((s) => s.toggleObject)
+    const audioMuted = useStore((s) => s.audioMuted)
+    const toggleMute = useStore((s) => s.toggleMute)
+    const cinemaMode = useStore((s) => s.cinemaMode)
+    const toggleCinema = useStore((s) => s.toggleCinema)
+
+    const takeScreenshot = useCallback(() => {
+        const canvas = document.querySelector('canvas')
+        if (!canvas) return
+        try {
+            const link = document.createElement('a')
+            link.download = `theoryviz-${Date.now()}.png`
+            link.href = canvas.toDataURL('image/png')
+            link.click()
+        } catch (e) {
+            console.warn('Screenshot failed:', e)
+        }
+    }, [])
 
     const labels = { ...DEFAULT_LABELS, ...theoryVariables }
     const title = activeTheory?.title || 'Monde Libre'
@@ -112,7 +130,7 @@ export default function ControlPanel() {
                     top: 0,
                     right: open ? 0 : -292,
                     width: 280,
-                    height: '100vh',
+                    height: 'calc(100vh - 40px)',
                     background: 'rgba(0,0,0,0.75)',
                     backdropFilter: 'blur(12px)',
                     borderRadius: '16px 0 0 16px',
@@ -205,9 +223,34 @@ export default function ControlPanel() {
                     )}
                 </div>
 
-                {/* ── Bottom: stats + reset ── */}
+                {/* ── Bottom: actions + stats + reset ── */}
                 <div style={{ flexShrink: 0, marginTop: 6 }}>
                     <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 6 }} />
+
+                    {/* Action buttons row */}
+                    <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
+                        <ActionBtn
+                            icon={audioMuted ? '🔇' : '🔊'}
+                            label={audioMuted ? 'Son off' : 'Son on'}
+                            onClick={toggleMute}
+                            active={!audioMuted}
+                            color={primaryColor}
+                        />
+                        <ActionBtn
+                            icon="📸"
+                            label="Screenshot"
+                            onClick={takeScreenshot}
+                            color={primaryColor}
+                        />
+                        <ActionBtn
+                            icon="🎬"
+                            label="Cinéma"
+                            onClick={toggleCinema}
+                            active={cinemaMode}
+                            color={primaryColor}
+                        />
+                    </div>
+
                     <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
                         <StatBox value={creatures.length} label="Population" color="#80CBC4" />
                         <StatBox value={generation} label="Génération" color="#CE93D8" />
@@ -261,70 +304,49 @@ function TheoryTab({
     activeTheory, loadTheory, handleTheorySelect, applyScenario,
     theoryConfig,
 }) {
+    const { theoryId } = useParams()
+    const isLockedTheory = !!theoryId // true if loaded via URL route
     return (
         <>
-            {/* Theory selector */}
-            <div>
-                <SectionLabel>Théorie</SectionLabel>
-                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                    <button
-                        onClick={() => loadTheory(null)}
-                        style={{
-                            ...theoryBtnStyle,
-                            background: !activeTheory ? 'rgba(165,214,167,0.25)' : 'rgba(255,255,255,0.08)',
-                            borderColor: !activeTheory ? '#A5D6A7' : 'transparent',
-                            color: !activeTheory ? '#A5D6A7' : '#999',
-                        }}
-                    >
-                        🌍 Libre
-                    </button>
-                    {theoryList.map((t) => (
-                        <button
-                            key={t.id}
-                            onClick={() => handleTheorySelect(t)}
-                            style={{
-                                ...theoryBtnStyle,
-                                background: activeTheory?.id === t.id ? `${t.palette.primary}30` : 'rgba(255,255,255,0.08)',
-                                borderColor: activeTheory?.id === t.id ? t.palette.primary : 'transparent',
-                                color: activeTheory?.id === t.id ? t.palette.primary : '#999',
-                            }}
-                        >
-                            {t.id === 'evolution' ? '🧬' : '⚒️'} {t.title.split(' ').pop()}
-                        </button>
-                    ))}
-                </div>
-            </div>
+            {/* Theory selector — only in sandbox mode */}
+            {!isLockedTheory && (
+                <>
+                    <div>
+                        <SectionLabel>Théorie</SectionLabel>
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                            <button
+                                onClick={() => loadTheory(null)}
+                                style={{
+                                    ...theoryBtnStyle,
+                                    background: !activeTheory ? 'rgba(165,214,167,0.25)' : 'rgba(255,255,255,0.08)',
+                                    borderColor: !activeTheory ? '#A5D6A7' : 'transparent',
+                                    color: !activeTheory ? '#A5D6A7' : '#999',
+                                }}
+                            >
+                                🌍 Libre
+                            </button>
+                            {theoryList.map((t) => (
+                                <button
+                                    key={t.id}
+                                    onClick={() => handleTheorySelect(t)}
+                                    style={{
+                                        ...theoryBtnStyle,
+                                        background: activeTheory?.id === t.id ? `${t.palette.primary}30` : 'rgba(255,255,255,0.08)',
+                                        borderColor: activeTheory?.id === t.id ? t.palette.primary : 'transparent',
+                                        color: activeTheory?.id === t.id ? t.palette.primary : '#999',
+                                    }}
+                                >
+                                    {t.id === 'evolution' ? '🧬' : '⚒️'} {t.title.split(' ').pop()}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <Divider />
+                </>)
+            }
 
-            <Divider />
 
-            {/* Speed controls */}
-            <div>
-                <SectionLabel>Vitesse</SectionLabel>
-                <div style={{ display: 'flex', gap: 4 }}>
-                    {SPEED_OPTIONS.map((opt) => (
-                        <button
-                            key={opt.value}
-                            onClick={() => setSpeed(opt.value)}
-                            style={{
-                                flex: 1,
-                                padding: '5px 0',
-                                border: 'none',
-                                borderRadius: 6,
-                                background: speed === opt.value ? '#4CAF50' : 'rgba(255,255,255,0.1)',
-                                color: speed === opt.value ? '#000' : '#ccc',
-                                fontSize: 12,
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                            }}
-                        >
-                            {opt.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
 
-            <Divider />
 
             {/* Sliders with icons and descriptions */}
             {Object.entries(SLIDER_CONFIGS).map(([key, config]) => {
@@ -654,4 +676,44 @@ const resetBtnStyle = {
     fontWeight: 600,
     cursor: 'pointer',
     transition: 'all 0.2s',
+}
+
+function ActionBtn({ icon, label, onClick, active, color }) {
+    return (
+        <button
+            onClick={onClick}
+            title={label}
+            style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 4,
+                padding: '5px 0',
+                border: '1px solid',
+                borderColor: active ? `${color}40` : 'rgba(255,255,255,0.08)',
+                borderRadius: 6,
+                background: active ? `${color}15` : 'rgba(255,255,255,0.04)',
+                color: active ? color : 'rgba(255,255,255,0.5)',
+                fontSize: 11,
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontFamily: "'Inter', sans-serif",
+            }}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.background = `${color}20`
+                e.currentTarget.style.borderColor = `${color}50`
+                e.currentTarget.style.color = color
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.background = active ? `${color}15` : 'rgba(255,255,255,0.04)'
+                e.currentTarget.style.borderColor = active ? `${color}40` : 'rgba(255,255,255,0.08)'
+                e.currentTarget.style.color = active ? color : 'rgba(255,255,255,0.5)'
+            }}
+        >
+            <span style={{ fontSize: 12 }}>{icon}</span>
+            <span>{label}</span>
+        </button>
+    )
 }

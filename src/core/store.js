@@ -134,6 +134,12 @@ const useStore = create((set, get) => ({
   theoryVariables: {},
   theoryConfig: {},
   theoryBehaviors: {},
+  _transitionRequest: null,
+
+  // UI modes
+  cinemaMode: false,
+  hudVisible: true,
+  audioMuted: false,
 
   // World objects (generated from registry)
   worldObjects: (() => {
@@ -149,6 +155,9 @@ const useStore = create((set, get) => ({
   // ── Actions ──────────────────────────────────────────────────
 
   setSpeed: (s) => set({ speed: s }),
+  toggleCinema: () => set((s) => ({ cinemaMode: !s.cinemaMode, hudVisible: s.cinemaMode })),
+  toggleHud: () => set((s) => ({ hudVisible: !s.hudVisible })),
+  toggleMute: () => set((s) => ({ audioMuted: !s.audioMuted })),
 
   setVariable: (key, value) =>
     set((state) => ({
@@ -194,6 +203,19 @@ const useStore = create((set, get) => ({
     })),
 
   loadTheory: (config) => {
+    const state = get()
+    // Trigger transition overlay, then apply after fade
+    const title = config?.title || 'Monde Libre'
+    const color = config?.palette?.primary || '#A5D6A7'
+    const description = config?.description || ''
+    set({ _transitionRequest: { title, color, description } })
+    // Apply after fade-in (350ms)
+    setTimeout(() => {
+      get()._applyTheory(config)
+    }, 350)
+  },
+
+  _applyTheory: (config) => {
     if (!config) {
       // Reset to free mode
       const objs = {}
