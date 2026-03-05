@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import useStore from '../core/store'
 import { theoryList } from '../theories'
 import { getWorldObjects } from '../world/registry'
+import { getAllPresets } from '../world/presets'
 import '../world/objects' // trigger registrations
 
 const DEFAULT_LABELS = {
@@ -59,6 +60,8 @@ export default function ControlPanel() {
     const worldObjects = useStore((s) => s.worldObjects)
     const setObjectCount = useStore((s) => s.setObjectCount)
     const toggleObject = useStore((s) => s.toggleObject)
+    const activePreset = useStore((s) => s.activePreset)
+    const setPreset = useStore((s) => s.setPreset)
     const audioMuted = useStore((s) => s.audioMuted)
     const toggleMute = useStore((s) => s.toggleMute)
     const cinemaMode = useStore((s) => s.cinemaMode)
@@ -219,6 +222,8 @@ export default function ControlPanel() {
                             setObjectCount={setObjectCount}
                             toggleObject={toggleObject}
                             activeTheory={activeTheory}
+                            activePreset={activePreset}
+                            setPreset={setPreset}
                         />
                     )}
                 </div>
@@ -462,8 +467,9 @@ function TheoryTab({
    World Tab
    ══════════════════════════════════════════════════════ */
 
-function WorldTab({ worldObjects, setObjectCount, toggleObject, activeTheory }) {
+function WorldTab({ worldObjects, setObjectCount, toggleObject, activeTheory, activePreset, setPreset }) {
     const registeredObjects = getWorldObjects()
+    const presets = getAllPresets()
 
     // Group by category
     const grouped = {}
@@ -475,6 +481,61 @@ function WorldTab({ worldObjects, setObjectCount, toggleObject, activeTheory }) 
 
     return (
         <>
+            {/* ── Preset Picker ── */}
+            <SectionLabel>🗺️ Preset de monde</SectionLabel>
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: 6,
+                marginBottom: 10,
+            }}>
+                {presets.map((preset) => {
+                    const isActive = activePreset === preset.id
+                    return (
+                        <button
+                            key={preset.id}
+                            onClick={() => setPreset(preset.id)}
+                            style={{
+                                padding: '10px 8px',
+                                borderRadius: 10,
+                                border: isActive ? '2px solid rgba(255,255,255,0.5)' : '2px solid transparent',
+                                background: isActive ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: 4,
+                                transition: 'all 0.2s',
+                                transform: isActive ? 'scale(1.02)' : 'scale(1)',
+                            }}
+                            onMouseEnter={(e) => {
+                                if (!isActive) e.target.style.background = 'rgba(255,255,255,0.08)'
+                            }}
+                            onMouseLeave={(e) => {
+                                if (!isActive) e.target.style.background = 'rgba(255,255,255,0.04)'
+                            }}
+                        >
+                            <div style={{
+                                width: 28,
+                                height: 28,
+                                borderRadius: '50%',
+                                background: preset.terrainColor,
+                                border: '2px solid rgba(255,255,255,0.15)',
+                                boxShadow: isActive ? '0 0 10px rgba(255,255,255,0.2)' : 'none',
+                            }} />
+                            <span style={{
+                                fontSize: 11,
+                                fontWeight: isActive ? 700 : 500,
+                                color: isActive ? '#fff' : 'rgba(255,255,255,0.6)',
+                                whiteSpace: 'nowrap',
+                            }}>
+                                {preset.name}
+                            </span>
+                        </button>
+                    )
+                })}
+            </div>
+            <Divider />
             {CATEGORY_ORDER.map((cat) => {
                 const items = grouped[cat]
                 if (!items || items.length === 0) {

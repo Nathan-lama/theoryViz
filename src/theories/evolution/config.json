@@ -9,12 +9,16 @@
     "background": "#0e1a0e"
   },
   "world": {
+    "preset": "forest",
     "objects": {
       "trees": {
         "enabled": true,
         "count": 100
       },
       "houses": {
+        "enabled": false
+      },
+      "factories": {
         "enabled": false
       },
       "water": {
@@ -38,10 +42,25 @@
         20,
         100
       ],
-      "turbidity": 8
+      "turbidity": 8,
+      "rayleigh": 2
     },
     "terrain": {
       "color": "#2d5a1e"
+    },
+    "fog": {
+      "color": "#5a7a4a",
+      "near": 40,
+      "far": 90
+    },
+    "ambientLight": 0.5,
+    "directionalLight": {
+      "intensity": 1.2,
+      "position": [
+        15,
+        15,
+        10
+      ]
     }
   },
   "creatures": {

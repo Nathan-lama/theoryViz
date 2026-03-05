@@ -4,6 +4,8 @@
 
 import { getWorldObjects } from '../../world/registry'
 import { randomTraits } from '../../creatures/traits'
+import { getPreset } from '../../world/presets'
+import { setActiveHeightmap } from '../../world/terrain-utils'
 import {
   createInitialCreatures,
   createInitialFood,
@@ -24,6 +26,12 @@ function randomTraitsFromRanges(ranges) {
   return base
 }
 
+function activatePreset(presetId) {
+  const preset = getPreset(presetId)
+  setActiveHeightmap(preset.heightmap)
+  return preset
+}
+
 export const theorySlice = (set, get) => ({
   activeTheory: null,
   theoryVariables: {},
@@ -42,12 +50,30 @@ export const theorySlice = (set, get) => ({
   },
 
   _applyTheory: (config) => {
+    // Activate the world preset's heightmap
+    const presetId = config?.world?.preset || 'forest'
+    const preset = activatePreset(presetId)
+
     if (!config) {
       const objs = {}
       getWorldObjects().forEach((o) => {
-        objs[o.id] = { enabled: o.enabledByDefault !== false, count: o.defaultCount || 0 }
+        // Use preset defaults for objects
+        const presetObj = preset.defaultObjects?.[o.id]
+        if (presetObj) {
+          objs[o.id] = {
+            enabled: presetObj.enabled !== undefined ? presetObj.enabled : (o.enabledByDefault !== false),
+            count: presetObj.count !== undefined ? presetObj.count : (o.defaultCount || 0),
+          }
+        } else {
+          objs[o.id] = { enabled: o.enabledByDefault !== false, count: o.defaultCount || 0 }
+        }
       })
+      // Handle water visibility from preset
+      if (objs.water && preset.water === false) {
+        objs.water = { enabled: false, count: 0 }
+      }
       set({
+        activePreset: presetId,
         activeTheory: null,
         theoryVariables: {},
         theoryConfig: {},
@@ -85,20 +111,31 @@ export const theorySlice = (set, get) => ({
       }
     }
 
-    // 2. Apply world objects
+    // 2. Apply world objects (config overrides > preset defaults > registry defaults)
     const objs = {}
     const registeredObjects = getWorldObjects()
     registeredObjects.forEach((o) => {
-      const override = config.world?.objects?.[o.id]
-      if (override) {
+      const configOverride = config.world?.objects?.[o.id]
+      const presetDefault = preset.defaultObjects?.[o.id]
+
+      if (configOverride) {
         objs[o.id] = {
-          enabled: override.enabled !== undefined ? override.enabled : (o.enabledByDefault !== false),
-          count: override.count !== undefined ? override.count : (o.defaultCount || 0),
+          enabled: configOverride.enabled !== undefined ? configOverride.enabled : (o.enabledByDefault !== false),
+          count: configOverride.count !== undefined ? configOverride.count : (o.defaultCount || 0),
+        }
+      } else if (presetDefault) {
+        objs[o.id] = {
+          enabled: presetDefault.enabled !== undefined ? presetDefault.enabled : (o.enabledByDefault !== false),
+          count: presetDefault.count !== undefined ? presetDefault.count : (o.defaultCount || 0),
         }
       } else {
         objs[o.id] = { enabled: o.enabledByDefault !== false, count: o.defaultCount || 0 }
       }
     })
+    // Handle water visibility from preset
+    if (objs.water && preset.water === false) {
+      objs.water = { enabled: false, count: 0 }
+    }
 
     // 3. Create creatures with theory-specific trait ranges
     const creatureCount = config.creatures?.initialCount || 25
@@ -115,6 +152,7 @@ export const theorySlice = (set, get) => ({
 
     // 5. Apply everything and reset simulation
     set({
+      activePreset: presetId,
       activeTheory: config,
       theoryVariables: labels,
       theoryConfig: varConfigs,

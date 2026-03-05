@@ -4,6 +4,7 @@
 
 import { create } from 'zustand'
 import '../world/objects'  // trigger world object registrations
+import '../world/presets'  // trigger world preset registrations
 
 import { uiSlice } from './slices/uiSlice'
 import { worldSlice } from './slices/worldSlice'

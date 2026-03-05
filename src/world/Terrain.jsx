@@ -1,8 +1,12 @@
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import * as THREE from 'three'
+import useStore from '../core/store'
+import { getTerrainHeight } from './terrain-utils'
+import { getPreset } from './presets'
 
 export default function Terrain() {
-    const meshRef = useRef()
+    const presetId = useStore((s) => s.activePreset || 'forest')
+    const preset = getPreset(presetId)
 
     const geometry = useMemo(() => {
         const geo = new THREE.PlaneGeometry(80, 80, 128, 128)
@@ -12,21 +16,18 @@ export default function Terrain() {
         for (let i = 0; i < pos.count; i++) {
             const x = pos.getX(i)
             const z = pos.getZ(i)
-            const y =
-                Math.sin(x * 0.15) * Math.cos(z * 0.15) * 2 +
-                Math.sin(x * 0.3 + z * 0.2) * 0.8
-            pos.setY(i, y)
+            pos.setY(i, getTerrainHeight(x, z))
         }
 
         geo.computeVertexNormals()
         return geo
-    }, [])
+    }, [presetId])
 
     return (
-        <mesh ref={meshRef} geometry={geometry} receiveShadow>
+        <mesh geometry={geometry} receiveShadow>
             <meshStandardMaterial
-                color="#2d5a1e"
-                roughness={0.9}
+                color={preset.terrainColor}
+                roughness={preset.terrainRoughness ?? 0.9}
                 flatShading
             />
         </mesh>

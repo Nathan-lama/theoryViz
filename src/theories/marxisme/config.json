@@ -9,14 +9,19 @@
         "background": "#1a0e0e"
     },
     "world": {
+        "preset": "industrial",
         "objects": {
             "trees": {
                 "enabled": true,
-                "count": 40
+                "count": 25
             },
             "houses": {
                 "enabled": true,
                 "count": 30
+            },
+            "factories": {
+                "enabled": true,
+                "count": 10
             },
             "water": {
                 "enabled": true
@@ -35,13 +40,28 @@
         "sky": {
             "sunPosition": [
                 80,
-                15,
+                10,
                 80
             ],
-            "turbidity": 12
+            "turbidity": 14,
+            "rayleigh": 0.4
         },
         "terrain": {
             "color": "#3a2a1a"
+        },
+        "fog": {
+            "color": "#4a3a2a",
+            "near": 20,
+            "far": 60
+        },
+        "ambientLight": 0.35,
+        "directionalLight": {
+            "intensity": 0.9,
+            "position": [
+                10,
+                12,
+                8
+            ]
         }
     },
     "creatures": {
