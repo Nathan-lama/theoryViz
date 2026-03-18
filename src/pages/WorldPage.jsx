@@ -15,6 +15,7 @@ import SimEngine from '../simulation/SimEngine'
 import ControlPanel from '../ui/ControlPanel'
 import Timeline from '../ui/Timeline'
 import Stats from '../ui/Stats'
+import EvolutionStats from '../ui/EvolutionStats'
 import InfoCard from '../ui/InfoCard'
 import TheoryTransition from '../ui/TheoryTransition'
 import CinemaCamera from '../core/CinemaCamera'
@@ -178,6 +179,7 @@ export default function WorldPage() {
                 transition: 'opacity 0.3s ease',
             }}>
                 <ControlPanel />
+                <EvolutionStats />
                 <Stats />
                 <InfoCard />
             </div>

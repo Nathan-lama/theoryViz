@@ -5,19 +5,6 @@ import { getWorldObjects } from '../../world/registry'
 import { getPreset } from '../../world/presets'
 import { setActiveHeightmap } from '../../world/terrain-utils'
 
-// Lazy worker forwarding
-let sendToWorkerFn = null
-function forwardToWorker(msg) {
-  if (!sendToWorkerFn) {
-    import('../../simulation/SimEngine.js').then((mod) => {
-      sendToWorkerFn = mod.sendToWorker
-      sendToWorkerFn(msg)
-    })
-  } else {
-    sendToWorkerFn(msg)
-  }
-}
-
 export const worldSlice = (set) => ({
   worldObjects: (() => {
     const objs = {}
@@ -29,14 +16,12 @@ export const worldSlice = (set) => ({
     return objs
   })(),
 
-  // Active preset ID (persisted separately from theory for user overrides)
   activePreset: 'forest',
 
   setPreset: (presetId) => {
     const preset = getPreset(presetId)
     setActiveHeightmap(preset.heightmap)
 
-    // Apply preset's default objects
     const objs = {}
     getWorldObjects().forEach((o) => {
       const presetDefault = preset.defaultObjects?.[o.id]
@@ -49,14 +34,11 @@ export const worldSlice = (set) => ({
         objs[o.id] = { enabled: o.enabledByDefault !== false, count: o.defaultCount || 0 }
       }
     })
-    // Handle water
     if (objs.water && preset.water === false) {
       objs.water = { enabled: false, count: 0 }
     }
 
     set({ activePreset: presetId, worldObjects: objs })
-    // Forward preset change to worker so its heightmap stays in sync
-    forwardToWorker({ type: 'setPreset', presetId })
   },
 
   setObjectCount: (id, count) =>

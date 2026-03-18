@@ -1,7 +1,7 @@
 {
   "id": "evolution",
   "title": "Théorie de l'Évolution",
-  "description": "Observe la sélection naturelle en action",
+  "description": "Sélection naturelle, dérive génétique et adaptation — simulées en temps réel",
   "category": "science",
   "palette": {
     "primary": "#4CAF50",
@@ -11,106 +11,51 @@
   "world": {
     "preset": "forest",
     "objects": {
-      "trees": {
-        "enabled": true,
-        "count": 100
-      },
-      "houses": {
-        "enabled": false
-      },
-      "factories": {
-        "enabled": false
-      },
-      "water": {
-        "enabled": true
-      },
-      "rocks": {
-        "enabled": true,
-        "count": 40
-      },
-      "flowers": {
-        "enabled": true,
-        "count": 60
-      },
-      "particles": {
-        "enabled": true
-      }
+      "trees": { "enabled": true, "count": 100 },
+      "houses": { "enabled": false },
+      "factories": { "enabled": false },
+      "water": { "enabled": true },
+      "rocks": { "enabled": true, "count": 40 },
+      "flowers": { "enabled": true, "count": 60 },
+      "particles": { "enabled": true }
     },
-    "sky": {
-      "sunPosition": [
-        100,
-        20,
-        100
-      ],
-      "turbidity": 8,
-      "rayleigh": 2
-    },
-    "terrain": {
-      "color": "#2d5a1e"
-    },
-    "fog": {
-      "color": "#5a7a4a",
-      "near": 40,
-      "far": 90
-    },
+    "sky": { "sunPosition": [100, 20, 100], "turbidity": 8, "rayleigh": 2 },
+    "terrain": { "color": "#2d5a1e" },
+    "fog": { "color": "#5a7a4a", "near": 40, "far": 90 },
     "ambientLight": 0.5,
-    "directionalLight": {
-      "intensity": 1.2,
-      "position": [
-        15,
-        15,
-        10
-      ]
-    }
+    "directionalLight": { "intensity": 1.2, "position": [15, 15, 10] }
   },
   "creatures": {
     "initialCount": 30,
     "initialTraits": {
-      "speed": {
-        "min": 0.5,
-        "max": 1.5
-      },
-      "size": {
-        "min": 0.2,
-        "max": 0.4
-      },
-      "vision": {
-        "min": 2,
-        "max": 5
-      }
+      "speed": { "min": 0.5, "max": 1.5 },
+      "size": { "min": 0.2, "max": 0.4 },
+      "vision": { "min": 2, "max": 5 }
     },
     "behaviors": {
-      "seekFood": {
-        "enabled": true
-      },
-      "flee": {
-        "enabled": true
-      },
-      "reproduce": {
-        "enabled": true
-      },
-      "wander": {
-        "enabled": true
-      }
+      "seekFood": { "enabled": true },
+      "flee": { "enabled": true },
+      "reproduce": { "enabled": true },
+      "wander": { "enabled": true }
     }
   },
   "variables": {
     "foodAbundance": {
-      "label": "Nourriture disponible",
+      "label": "Abondance alimentaire",
       "default": 40,
       "min": 0,
       "max": 100,
       "step": 5,
-      "description": "Réduis pour créer une pression de sélection",
+      "description": "Contrôle la quantité de nourriture dans l'écosystème. Une faible abondance crée une compétition intraspécifique intense (principe d'exclusion compétitive de Gause). Observe comment les traits liés à la recherche de nourriture (vision, vitesse) sont sélectionnés.",
       "icon": "🍎"
     },
     "predatorCount": {
-      "label": "Prédateurs",
+      "label": "Pression de prédation",
       "default": 3,
       "min": 0,
       "max": 20,
       "step": 1,
-      "description": "Ajoute des prédateurs pour favoriser la vitesse",
+      "description": "Nombre de prédateurs. Crée une pression de sélection directionnelle sur la vitesse et la vision (loi de Red Queen — course aux armements évolutive). Les individus lents sont éliminés, favorisant les allèles de vitesse élevée.",
       "icon": "🐺"
     },
     "climate": {
@@ -119,7 +64,7 @@
       "min": 0,
       "max": 100,
       "step": 5,
-      "description": "Les extrêmes éliminent les inadaptés",
+      "description": "0 = glacial, 50 = tempéré, 100 = canicule. Applique la règle de Bergmann : en froid, les grands organismes (meilleur ratio surface/volume) retiennent mieux la chaleur. En chaleur, les petits dissipent mieux. Les extrêmes augmentent le coût métabolique de base.",
       "icon": "🌡️"
     },
     "mutationRate": {
@@ -128,75 +73,121 @@
       "min": 0,
       "max": 100,
       "step": 5,
-      "description": "Plus de mutations = plus de diversité",
+      "description": "Fréquence des mutations génétiques lors de la reproduction. Un taux élevé augmente la variance phénotypique (diversité), accélérant l'adaptation mais aussi le bruit génétique. Un taux faible conserve les traits parentaux (stabilité mais moins d'adaptation).",
       "icon": "🧬"
     },
     "resources": {
-      "label": "Espace vital",
+      "label": "Capacité d'accueil (K)",
       "default": 60,
       "min": 0,
       "max": 100,
       "step": 5,
-      "description": "Limite le territoire disponible",
+      "description": "Modèle de croissance logistique : K est la population maximale soutenable. Quand N→K, la compétition intraspécifique réduit l'énergie gagnée par la nourriture et augmente le seuil de reproduction. La population s'autorégule (courbe sigmoïde).",
       "icon": "🌍"
     }
   },
   "infoCards": [
     {
-      "trigger": {
-        "type": "generation",
-        "operator": ">=",
-        "value": 5
-      },
-      "title": "Sélection naturelle",
-      "text": "Les créatures les mieux adaptées survivent et transmettent leurs traits."
+      "trigger": { "type": "generation", "operator": ">=", "value": 2 },
+      "title": "🧬 Sélection naturelle",
+      "text": "Les individus les mieux adaptés à leur environnement survivent et transmettent leurs traits. C'est le moteur principal de l'évolution (Darwin, 1859). Observe la convergence des traits dans les graphes."
     },
     {
-      "trigger": {
-        "type": "population",
-        "operator": "<",
-        "value": 10
-      },
-      "title": "Goulot d'étranglement",
-      "text": "Population très basse ! La diversité génétique diminue."
+      "trigger": { "type": "population", "operator": "<", "value": 10 },
+      "title": "⚠️ Goulot d'étranglement",
+      "text": "Population critique ! Un goulot d'étranglement (bottleneck) réduit drastiquement la diversité génétique. Les survivants portent un pool génétique appauvri — c'est l'effet fondateur. Observe l'indice de Shannon chuter."
     },
     {
-      "trigger": {
-        "type": "variable",
-        "key": "foodAbundance",
-        "operator": "<",
-        "value": 20
-      },
-      "title": "Famine",
-      "text": "Peu de nourriture = forte compétition."
+      "trigger": { "type": "variable", "key": "foodAbundance", "operator": "<", "value": 15 },
+      "title": "🏜️ Famine — Compétition intense",
+      "text": "Peu de nourriture = forte compétition intraspécifique (Gause, 1934). Seuls les individus avec haute vision et vitesse trouvent de la nourriture avant les autres. C'est la sélection directionnelle en action."
+    },
+    {
+      "trigger": { "type": "variable", "key": "climate", "operator": ">", "value": 80 },
+      "title": "🔥 Canicule — Règle de Bergmann",
+      "text": "En climat chaud, les petits organismes ont un avantage : meilleur ratio surface/volume pour dissiper la chaleur. Observe la taille moyenne diminuer dans les graphes. C'est la règle de Bergmann (1847) en action."
+    },
+    {
+      "trigger": { "type": "variable", "key": "climate", "operator": "<", "value": 20 },
+      "title": "❄️ Glaciation — Règle de Bergmann",
+      "text": "En climat froid, les grands organismes retiennent mieux la chaleur (meilleur isolation, masse thermique). Observe la taille moyenne augmenter. Les petites créatures gaspillent trop d'énergie pour maintenir leur température."
+    },
+    {
+      "trigger": { "type": "variable", "key": "mutationRate", "operator": ">", "value": 70 },
+      "title": "🎲 Hypermutation",
+      "text": "Un taux de mutation très élevé augmente la diversité (Shannon ↑) mais crée aussi du bruit génétique. L'adaptation est rapide mais instable — les traits ne convergent jamais complètement. Comparer avec un taux bas !"
+    },
+    {
+      "trigger": { "type": "population", "operator": ">", "value": 80 },
+      "title": "📈 Boom démographique",
+      "text": "La population explose ! Mais attention à la capacité d'accueil (K). Si N > K, la compétition va s'intensifier et la population va se réguler (modèle logistique de Verhulst, 1838). Observe la courbe de population."
     }
   ],
   "scenarios": [
     {
-      "name": "🏃 Sélection par la vitesse",
-      "description": "Peu de nourriture + prédateurs = seuls les rapides survivent",
+      "name": "🏃 Sélection directionnelle",
+      "description": "Prédateurs + famine = les rapides survivent. Observe la vitesse moyenne augmenter et la variance diminuer.",
       "variables": {
-        "foodAbundance": 20,
-        "predatorCount": 5,
-        "mutationRate": 40
+        "foodAbundance": 15,
+        "predatorCount": 6,
+        "mutationRate": 25,
+        "climate": 50,
+        "resources": 50
       }
     },
     {
       "name": "🎲 Dérive génétique",
-      "description": "Abondance + mutations fortes = diversité maximale",
+      "description": "Abondance + mutations élevées = diversité maximale sans pression. L'évolution est neutre (Kimura, 1968).",
       "variables": {
         "foodAbundance": 80,
         "predatorCount": 0,
-        "mutationRate": 50
+        "mutationRate": 60,
+        "climate": 50,
+        "resources": 80
       }
     },
     {
       "name": "☄️ Extinction de masse",
-      "description": "Conditions extrêmes, qui survivra ?",
+      "description": "Conditions extrêmes. Seuls les plus adaptés survivent — puis effet fondateur sur les survivants.",
       "variables": {
         "foodAbundance": 5,
         "climate": 95,
-        "predatorCount": 10
+        "predatorCount": 8,
+        "mutationRate": 20,
+        "resources": 20
+      }
+    },
+    {
+      "name": "❄️ Bergmann (froid)",
+      "description": "Climat glacial : observe les grandes créatures être sélectionnées (règle de Bergmann).",
+      "variables": {
+        "foodAbundance": 50,
+        "predatorCount": 2,
+        "climate": 5,
+        "mutationRate": 30,
+        "resources": 60
+      }
+    },
+    {
+      "name": "🔥 Bergmann (chaud)",
+      "description": "Canicule : les petites créatures dissipent mieux la chaleur. Taille moyenne ↓",
+      "variables": {
+        "foodAbundance": 50,
+        "predatorCount": 2,
+        "climate": 95,
+        "mutationRate": 30,
+        "resources": 60
+      }
+    },
+    {
+      "name": "📉 Surpopulation → K",
+      "description": "Beaucoup de nourriture mais K bas. La population atteint K puis s'autorégule (modèle logistique).",
+      "variables": {
+        "foodAbundance": 90,
+        "predatorCount": 0,
+        "climate": 50,
+        "mutationRate": 20,
+        "resources": 15
       }
     }
   ]

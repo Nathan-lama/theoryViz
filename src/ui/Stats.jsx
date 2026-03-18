@@ -8,9 +8,9 @@ export default function Stats() {
     const populationHistory = useStore((s) => s.populationHistory)
     const births = useStore((s) => s.recentBirths)
     const deaths = useStore((s) => s.recentDeaths)
+    const activeTheory = useStore((s) => s.activeTheory)
 
     const stats = useMemo(() => {
-        // Dominant color
         const colorCount = {}
         let avgSize = 0
         for (const c of creatures) {
@@ -31,10 +31,12 @@ export default function Stats() {
         return { dominantColor, dominantCount: maxCount, avgSize }
     }, [creatures])
 
-    // Use last 200 points for the graph
     const graphData = useMemo(() => {
         return populationHistory.slice(-200)
     }, [populationHistory])
+
+    // Hide when EvolutionStats is showing (must be after all hooks)
+    if (activeTheory?.id === 'evolution') return null
 
     return (
         <div style={{

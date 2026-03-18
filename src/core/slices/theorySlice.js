@@ -1,7 +1,6 @@
 // ── Theory Slice ────────────────────────────────────────────────
 // Manages: activeTheory, theoryVariables, theoryConfig, theoryBehaviors, transitions
 // Uses get() to access simulation state for resets.
-// Forwards preset and behavior changes to the simulation worker.
 
 import { getWorldObjects } from '../../world/registry'
 import { randomTraits } from '../../creatures/traits'
@@ -12,32 +11,6 @@ import {
   createInitialFood,
   createCreature,
 } from '../factories'
-
-// Lazy worker forwarding to avoid circular deps
-let sendToWorkerFn = null
-let initWorkerFn = null
-function forwardToWorker(msg) {
-  if (!sendToWorkerFn) {
-    import('../../simulation/SimEngine.js').then((mod) => {
-      sendToWorkerFn = mod.sendToWorker
-      initWorkerFn = mod.initWorker
-      sendToWorkerFn(msg)
-    })
-  } else {
-    sendToWorkerFn(msg)
-  }
-}
-
-function reinitWorker(state, presetId) {
-  if (!initWorkerFn) {
-    import('../../simulation/SimEngine.js').then((mod) => {
-      initWorkerFn = mod.initWorker
-      initWorkerFn(state, presetId)
-    })
-  } else {
-    initWorkerFn(state, presetId)
-  }
-}
 
 function randomTraitsFromRanges(ranges) {
   const base = randomTraits()
@@ -97,7 +70,7 @@ export const theorySlice = (set, get) => ({
       if (objs.water && preset.water === false) {
         objs.water = { enabled: false, count: 0 }
       }
-      const newState = {
+      set({
         activePreset: presetId,
         activeTheory: null,
         theoryVariables: {},
@@ -113,6 +86,11 @@ export const theorySlice = (set, get) => ({
         recentDeaths: 0,
         _birthLog: [],
         _deathLog: [],
+        traitStats: null,
+        traitHistory: {},
+        survivalRate: 1,
+        selectionPressure: 0,
+        carryingCapacity: 120,
         worldObjects: objs,
         variables: {
           foodAbundance: 50,
@@ -121,10 +99,7 @@ export const theorySlice = (set, get) => ({
           mutationRate: 10,
           resources: 50,
         },
-      }
-      set(newState)
-      // Re-init worker with new state + preset
-      reinitWorker(newState, presetId)
+      })
       return
     }
 
@@ -179,7 +154,7 @@ export const theorySlice = (set, get) => ({
     const behaviorConfig = config.creatures?.behaviors || {}
 
     // 5. Apply everything and reset simulation
-    const newState = {
+    set({
       activePreset: presetId,
       activeTheory: config,
       theoryVariables: labels,
@@ -195,6 +170,11 @@ export const theorySlice = (set, get) => ({
       recentDeaths: 0,
       _birthLog: [],
       _deathLog: [],
+      traitStats: null,
+      traitHistory: {},
+      survivalRate: 1,
+      selectionPressure: 0,
+      carryingCapacity: 120,
       worldObjects: objs,
       variables: {
         foodAbundance: 50,
@@ -204,9 +184,6 @@ export const theorySlice = (set, get) => ({
         resources: 50,
         ...defaults,
       },
-    }
-    set(newState)
-    // Re-init worker with new state + preset
-    reinitWorker(newState, presetId)
+    })
   },
 })
