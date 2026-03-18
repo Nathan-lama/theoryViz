@@ -3,7 +3,9 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { registerWorldObject } from '../registry'
 
-// ── isInWater utility (exported for other components) ──
+// Re-export from water-utils (worker-compatible)
+export { isInWater } from '../water-utils'
+
 function createLakeShape() {
     const shape = new THREE.Shape()
     const points = 32
@@ -26,18 +28,6 @@ function createLakeShape() {
         }
     }
     return shape
-}
-
-export function isInWater(x, z) {
-    const baseRadius = 12
-    const angle = Math.atan2(z, x)
-    const r =
-        baseRadius +
-        Math.sin(angle * 2) * 3 +
-        Math.sin(angle * 3.7) * 1.5 +
-        Math.cos(angle * 5.1) * 0.8
-    const dist = Math.sqrt(x * x + z * z)
-    return dist < r - 1
 }
 
 function Water() {

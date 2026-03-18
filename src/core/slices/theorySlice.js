@@ -1,6 +1,7 @@
 // ── Theory Slice ────────────────────────────────────────────────
 // Manages: activeTheory, theoryVariables, theoryConfig, theoryBehaviors, transitions
-// Uses get() to access simulation state for resets
+// Uses get() to access simulation state for resets.
+// Forwards preset and behavior changes to the simulation worker.
 
 import { getWorldObjects } from '../../world/registry'
 import { randomTraits } from '../../creatures/traits'
@@ -11,6 +12,32 @@ import {
   createInitialFood,
   createCreature,
 } from '../factories'
+
+// Lazy worker forwarding to avoid circular deps
+let sendToWorkerFn = null
+let initWorkerFn = null
+function forwardToWorker(msg) {
+  if (!sendToWorkerFn) {
+    import('../../simulation/SimEngine.js').then((mod) => {
+      sendToWorkerFn = mod.sendToWorker
+      initWorkerFn = mod.initWorker
+      sendToWorkerFn(msg)
+    })
+  } else {
+    sendToWorkerFn(msg)
+  }
+}
+
+function reinitWorker(state, presetId) {
+  if (!initWorkerFn) {
+    import('../../simulation/SimEngine.js').then((mod) => {
+      initWorkerFn = mod.initWorker
+      initWorkerFn(state, presetId)
+    })
+  } else {
+    initWorkerFn(state, presetId)
+  }
+}
 
 function randomTraitsFromRanges(ranges) {
   const base = randomTraits()
@@ -50,14 +77,13 @@ export const theorySlice = (set, get) => ({
   },
 
   _applyTheory: (config) => {
-    // Activate the world preset's heightmap
+    // Activate the world preset's heightmap on main thread (for rendering)
     const presetId = config?.world?.preset || 'forest'
     const preset = activatePreset(presetId)
 
     if (!config) {
       const objs = {}
       getWorldObjects().forEach((o) => {
-        // Use preset defaults for objects
         const presetObj = preset.defaultObjects?.[o.id]
         if (presetObj) {
           objs[o.id] = {
@@ -68,15 +94,15 @@ export const theorySlice = (set, get) => ({
           objs[o.id] = { enabled: o.enabledByDefault !== false, count: o.defaultCount || 0 }
         }
       })
-      // Handle water visibility from preset
       if (objs.water && preset.water === false) {
         objs.water = { enabled: false, count: 0 }
       }
-      set({
+      const newState = {
         activePreset: presetId,
         activeTheory: null,
         theoryVariables: {},
         theoryConfig: {},
+        theoryBehaviors: {},
         time: 0,
         generation: 1,
         creatures: createInitialCreatures(25),
@@ -95,7 +121,10 @@ export const theorySlice = (set, get) => ({
           mutationRate: 10,
           resources: 50,
         },
-      })
+      }
+      set(newState)
+      // Re-init worker with new state + preset
+      reinitWorker(newState, presetId)
       return
     }
 
@@ -132,7 +161,6 @@ export const theorySlice = (set, get) => ({
         objs[o.id] = { enabled: o.enabledByDefault !== false, count: o.defaultCount || 0 }
       }
     })
-    // Handle water visibility from preset
     if (objs.water && preset.water === false) {
       objs.water = { enabled: false, count: 0 }
     }
@@ -151,7 +179,7 @@ export const theorySlice = (set, get) => ({
     const behaviorConfig = config.creatures?.behaviors || {}
 
     // 5. Apply everything and reset simulation
-    set({
+    const newState = {
       activePreset: presetId,
       activeTheory: config,
       theoryVariables: labels,
@@ -176,6 +204,9 @@ export const theorySlice = (set, get) => ({
         resources: 50,
         ...defaults,
       },
-    })
+    }
+    set(newState)
+    // Re-init worker with new state + preset
+    reinitWorker(newState, presetId)
   },
 })

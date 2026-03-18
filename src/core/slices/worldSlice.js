@@ -5,6 +5,19 @@ import { getWorldObjects } from '../../world/registry'
 import { getPreset } from '../../world/presets'
 import { setActiveHeightmap } from '../../world/terrain-utils'
 
+// Lazy worker forwarding
+let sendToWorkerFn = null
+function forwardToWorker(msg) {
+  if (!sendToWorkerFn) {
+    import('../../simulation/SimEngine.js').then((mod) => {
+      sendToWorkerFn = mod.sendToWorker
+      sendToWorkerFn(msg)
+    })
+  } else {
+    sendToWorkerFn(msg)
+  }
+}
+
 export const worldSlice = (set) => ({
   worldObjects: (() => {
     const objs = {}
@@ -42,6 +55,8 @@ export const worldSlice = (set) => ({
     }
 
     set({ activePreset: presetId, worldObjects: objs })
+    // Forward preset change to worker so its heightmap stays in sync
+    forwardToWorker({ type: 'setPreset', presetId })
   },
 
   setObjectCount: (id, count) =>

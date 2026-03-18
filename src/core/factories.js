@@ -1,25 +1,16 @@
 // ── Shared factories ────────────────────────────────────────────
-// Used by simulationSlice and theorySlice for creating entities
+// Used by simulationSlice and theorySlice for creating entities.
+// Uses worldQuery abstraction — never imports terrain/water directly.
 
 import { randomTraits, hslToString } from '../creatures/traits'
-import { isInWater } from '../world/objects/water'
-import { getTerrainHeight } from '../world/terrain-utils'
+import { worldQuery } from '../world/world-query'
 
 let foodIdCounter = 0
 let creatureIdCounter = 0
 let predatorIdCounter = 0
 
-function randomLandPosition(spread = 60) {
-  let x, z
-  do {
-    x = (Math.random() - 0.5) * spread
-    z = (Math.random() - 0.5) * spread
-  } while (isInWater(x, z))
-  return { x, z, y: getTerrainHeight(x, z) }
-}
-
 export function createFoodItem() {
-  const pos = randomLandPosition(60)
+  const pos = worldQuery.randomLandPosition(60)
   return {
     id: foodIdCounter++,
     position: [pos.x, pos.y + 0.15, pos.z],
@@ -28,7 +19,7 @@ export function createFoodItem() {
 }
 
 export function createCreature(overrides = {}) {
-  const pos = randomLandPosition(60)
+  const pos = worldQuery.randomLandPosition(60)
   const traits = overrides.traits || randomTraits()
   return {
     id: creatureIdCounter++,
@@ -48,7 +39,7 @@ export function createCreature(overrides = {}) {
 }
 
 export function createPredator() {
-  const pos = randomLandPosition(60)
+  const pos = worldQuery.randomLandPosition(60)
   const size = 0.5
   return {
     id: predatorIdCounter++,
